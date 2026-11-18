@@ -196,6 +196,12 @@ a {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+.chat-log::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 .msg-row {
