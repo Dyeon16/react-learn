@@ -1,0 +1,32 @@
+:root {
+  /* color */
+  --primary-300: #61dafb; /* React 로고 블루 — 장식용, 텍스트에는 쓰지 않기 */
+  --primary-600: #0284c7; /* 버튼, 링크, 포커스 */
+  --primary-700: #0369a1; /* hover / active */
+  --ink-900: #0f172a;     /* 본문 텍스트 */
+  --ink-600: #475569;     /* 보조 텍스트 */
+  --surface-50: #ffffff;  /* 페이지 배경 */
+  --surface-100: #f1f5f9; /* 카드, 챗봇 답변 영역 */
+  --border: #e2e8f0;      /* 구분선, 테두리 */
+
+  /* type */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* spacing */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+
+  /* radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-50);
+  color: var(--ink-900);
+}
