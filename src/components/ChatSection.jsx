@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import ChatMessage from './ChatMessage.jsx'
 
 const INITIAL_MESSAGES = [
@@ -21,6 +21,14 @@ const SUGGESTED = ['컴포넌트란 정확히 뭔가요?', 'Props와 State의 �
 export default function ChatSection() {
   const [messages, setMessages] = useState(INITIAL_MESSAGES)
   const [input, setInput] = useState('')
+  const logRef = useRef(null)
+
+  useEffect(() => {
+    const el = logRef.current
+    if (el) {
+      el.scrollTop = el.scrollHeight
+    }
+  }, [messages])
 
   function sendMessage(text) {
     const trimmed = text.trim()
@@ -52,7 +60,7 @@ export default function ChatSection() {
     <section className="chat-section">
       <div className="chat-header">React 학습 도우미에게 물어보기</div>
 
-      <div className="chat-log">
+      <div className="chat-log" ref={logRef}>
         {messages.map((m) => (
           <ChatMessage key={m.id} role={m.role} text={m.text} code={m.code} source={m.source} />
         ))}

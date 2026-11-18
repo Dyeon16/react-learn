@@ -47,23 +47,24 @@ a {
   gap: 10px;
 }
 
-.brand-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.brand-row img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  display: block;
-}
-
 .brand-label {
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-600);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
 }
 
 .hero h1 {
