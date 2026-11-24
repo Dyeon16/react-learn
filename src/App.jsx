@@ -96,9 +96,10 @@ export default function App() {
           </button>
         )}
 
-        {/* key={route}로 페이지를 옮기면 챗봇 대화창이 새로 시작된다 */}
+        {/* 페이지를 옮겨도 같은 ChatPanel 인스턴스를 유지해서 대화 내역이 남는다.
+            (key를 route로 주면 페이지 이동마다 새로 마운트되어 대화가 지워지므로 주지 않는다.
+             대화는 메모리에만 있으므로 새로고침하면 초기화된다.) */}
         <ChatPanel
-          key={route}
           ref={chatRef}
           title={route === 'start' ? '무엇이든 물어보세요' : '더 궁금한 점을 물어보세요'}
           inert={isDrawer && !chatOpen}
