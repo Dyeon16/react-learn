@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useEffect,
   useId,
   useImperativeHandle,
   useRef,
@@ -14,7 +15,13 @@ function makeId() {
 }
 
 const ChatPanel = forwardRef(function ChatPanel(
-  { title = '무엇이든 물어보세요' },
+  {
+    title = '무엇이든 물어보세요',
+    // 아래 세 prop은 좁은 화면의 서랍 모드에서만 App이 넘겨준다
+    inert = false, // 접혀 있을 때 화면 밖 요소가 키보드 포커스를 받지 않도록
+    autoFocus = false, // 서랍이 펼쳐지면 입력창(또는 접기 버튼)으로 포커스 이동
+    onClose, // 있으면 헤더에 접기 버튼 표시
+  },
   ref,
 ) {
   const [messages, setMessages] = useState([]);
@@ -22,6 +29,22 @@ const ChatPanel = forwardRef(function ChatPanel(
   const [isSending, setIsSending] = useState(false);
   const inputId = useId();
   const abortRef = useRef(null);
+  const logRef = useRef(null);
+  const inputRef = useRef(null);
+  const closeRef = useRef(null);
+
+  // 새 메시지나 "답변 생성 중" 표시가 생기면 대화창을 맨 아래로 내린다
+  useEffect(() => {
+    const el = logRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  }, [messages, isSending]);
+
+  // 서랍이 펼쳐지면 바로 입력할 수 있게 포커스를 옮긴다 (전송 중이면 접기 버튼으로)
+  useEffect(() => {
+    if (!autoFocus) return;
+    const target = inputRef.current && !inputRef.current.disabled ? inputRef.current : closeRef.current;
+    target?.focus({ preventScroll: true });
+  }, [autoFocus]);
 
   // 페이지 콘텐츠의 "이런 질문도 해보세요" 칩이 이 ask()를 호출해서
   // 오른쪽 챗봇에 실제로 질문을 전송한다 (App.jsx가 ref로 연결해줌).
@@ -74,18 +97,47 @@ const ChatPanel = forwardRef(function ChatPanel(
   }
 
   return (
-    <aside className="chat-panel">
+    <aside
+      id="chat-panel"
+      className="chat-panel"
+      aria-label="React 학습 챗봇"
+      inert={inert ? '' : undefined}
+    >
       <div className="chat-header">
-        <span className="title">{title}</span>
-        <span className="subtitle">공식문서 기반으로 답변해요</span>
+        <div className="chat-header-text">
+          <span className="title">{title}</span>
+          <span className="subtitle">공식문서 기반으로 답변해요</span>
+        </div>
+        {onClose && (
+          <button
+            ref={closeRef}
+            type="button"
+            className="chat-close-btn"
+            onClick={onClose}
+            aria-label="챗봇 접기"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M9 5l7 7-7 7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
-      <div className={`chat-log${messages.length === 0 ? ' empty' : ''}`}>
+      <div ref={logRef} className={`chat-log${messages.length === 0 ? ' empty' : ''}`}>
         {messages.length === 0 && (
           <span className="empty-text">
             아직 대화가 없어요.
             <br />
-            아래 질문으로 시작해보세요.
+            본문의 질문 칩을 누르거나
+            <br />
+            아래 입력창에 직접 물어보세요.
           </span>
         )}
 
@@ -129,6 +181,7 @@ const ChatPanel = forwardRef(function ChatPanel(
             메시지 입력
           </label>
           <input
+            ref={inputRef}
             id={inputId}
             type="text"
             className="chat-input"

@@ -439,8 +439,41 @@ button {
   padding: 16px 20px;
   border-bottom: 1px solid var(--color-border);
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.chat-header-text {
+  display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+}
+
+.chat-close-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--color-text-muted);
+}
+
+.chat-close-btn:hover {
+  background: var(--color-bg-soft);
+  color: var(--color-text);
+}
+
+.chat-close-btn:focus-visible,
+.chat-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .chat-header .title {
@@ -682,4 +715,187 @@ button {
 
 .chat-input-count.limit {
   color: #b91c1c;
+}
+
+/* ---------- 챗봇 서랍 (넓은 화면에서는 오른쪽 고정 칼럼) ---------- */
+.chat-drawer {
+  flex: 0 0 340px;
+  display: flex;
+  height: 100%;
+}
+
+.chat-tab,
+.chat-backdrop {
+  display: none;
+}
+
+/* 1100px 이하: 사이드바(240) + 본문(최소 ~520) + 챗봇(340)이 다 들어가지 않으므로
+   챗봇을 오른쪽 서랍으로 바꾼다. 접혀 있을 땐 가장자리에 탭 바만 튀어나와 있고,
+   탭을 누르면 오른쪽에서 왼쪽으로 펼쳐진다. (App.jsx의 DRAWER_QUERY와 같은 기준) */
+@media (max-width: 1100px) {
+  .content {
+    padding-right: 60px; /* 튀어나온 탭이 본문을 가리지 않도록 */
+  }
+
+  .chat-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(360px, calc(100vw - 44px));
+    height: auto;
+    z-index: 30;
+    background: var(--color-bg);
+    transform: translateX(100%);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+  }
+
+  .chat-drawer.open {
+    transform: translateX(0);
+    box-shadow: -10px 0 30px rgba(15, 23, 42, 0.16);
+  }
+
+  .chat-drawer .chat-panel {
+    flex: 1 1 auto;
+    width: 100%;
+    background: var(--color-bg);
+  }
+
+  .chat-tab {
+    position: absolute;
+    top: 50%;
+    right: 100%; /* 서랍 왼쪽 가장자리에 붙어서 화면 안으로 튀어나옴 */
+    transform: translateY(-50%);
+    width: 36px;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 12px 0 0 12px;
+    background: var(--color-primary);
+    color: #ffffff;
+    box-shadow: -3px 3px 10px rgba(15, 23, 42, 0.18);
+    transition: opacity 0.2s ease;
+  }
+
+  .chat-tab:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .chat-tab-label {
+    writing-mode: vertical-rl;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+
+  .chat-drawer.open .chat-tab {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chat-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+
+  .chat-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* 720px 이하(모바일): 사이드바를 상단 가로 스크롤 메뉴로, 가로 배치 블록은 세로로 */
+@media (max-width: 720px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar-brand {
+    flex: 0 0 auto;
+    margin: 0 6px 0 0;
+    padding: 0 4px;
+  }
+
+  .sidebar-brand span {
+    display: none;
+  }
+
+  .nav-item,
+  .nav-item.active {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-left: none;
+  }
+
+  .nav-item.active {
+    box-shadow: inset 0 -2px 0 var(--color-primary);
+  }
+
+  .content {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    padding: 20px 52px 28px 16px;
+    gap: 16px;
+  }
+
+  .content h1 {
+    font-size: 23px;
+    line-height: 30px;
+  }
+
+  .compare-row {
+    flex-direction: column;
+  }
+
+  .tree-children {
+    flex-wrap: wrap;
+  }
+
+  .tree-node {
+    flex: 1 1 90px;
+  }
+
+  .code-block {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-drawer,
+  .chat-backdrop,
+  .chat-tab {
+    transition: none;
+  }
 }
