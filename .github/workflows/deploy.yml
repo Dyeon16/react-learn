@@ -1,0 +1,78 @@
+name: Deploy to S3 + CloudFront
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-northeast-2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 프론트엔드는 같은 오리진의 /api/* 를 호출하므로 빌드 시 API URL이 필요 없음
+      - name: Build
+        run: npm run build
+
+      # Secret 값 앞뒤 공백/개행 제거 (이전 프로젝트에서 공백 때문에 배포 실패한 적 있음)
+      # 공백이 제거된 값은 원래 Secret과 문자열이 달라 자동 마스킹되지 않으므로 add-mask로 다시 가린다
+      - name: Normalize secrets
+        env:
+          RAW_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          RAW_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          RAW_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          RAW_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          for name in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID; do
+            raw_var="RAW_$name"
+            value="$(printf '%s' "${!raw_var}" | tr -d '[:space:]')"
+            if [ -z "$value" ]; then
+              echo "::error::Secret $name is empty or missing"
+              exit 1
+            fi
+            echo "::add-mask::$value"
+            echo "$name=$value" >> "$GITHUB_ENV"
+          done
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 해시가 붙은 정적 에셋은 장기 캐시, index.html은 매번 재검증
+      - name: Upload to S3 (private bucket, OAC)
+        run: |
+          aws s3 sync dist/ "s3://$S3_BUCKET" --delete \
+            --exclude index.html \
+            --cache-control "public,max-age=31536000,immutable"
+          aws s3 cp dist/index.html "s3://$S3_BUCKET/index.html" \
+            --cache-control "no-cache"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/*"
