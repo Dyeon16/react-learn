@@ -51,7 +51,7 @@ src/
     CodeTokens.jsx          코드 블록 문법 하이라이팅용 토큰 컴포넌트
     RichText.jsx            챗봇 답변의 코드 블록/인라인 코드/굵게 렌더링
   pages/                    6개 학습 페이지 (전부 하드코딩된 콘텐츠)
-  data/                     커리큘럼 목록, 페이지별 추천 질문 칩
+  data/curriculum.js        사이드바 커리큘럼 목록 (추천 질문 칩은 각 페이지에 직접 작성)
   hooks/useHashRoute.js      외부 라우터 없이 #해시로 탭 전환
   styles/                   디자인 토큰(tokens.css) + 전역 스타일(global.css)
 ```

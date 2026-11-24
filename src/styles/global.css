@@ -589,31 +589,9 @@ button {
   40% { opacity: 1; }
 }
 
-.chat-starters {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
 
-.chat-starter-btn {
-  text-align: left;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-primary-dark);
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 8px 12px;
-}
 
-.chat-starter-btn:hover {
-  background: var(--color-bg-soft);
-}
 
-.chat-starter-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .chat-footer {
   flex: 0 0 auto;
@@ -674,14 +652,6 @@ button {
   cursor: not-allowed;
 }
 
-.chat-error-banner {
-  font-size: 12px;
-  color: #991b1b;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 6px 10px;
-}
 
 /* 챗봇 답변 안의 코드 블록 / 인라인 코드 / 글자 수 */
 .bubble .bubble-text {
