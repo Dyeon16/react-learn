@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "WriteOwnLogs",
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
+      "Resource": "arn:aws:logs:ap-northeast-2:917246555749:log-group:/aws/lambda/react-learn-api:*"
+    },
+    {
+      "Sid": "RetrieveAndGenerate",
+      "Effect": "Allow",
+      "Action": "bedrock:RetrieveAndGenerate",
+      "Resource": "*"
+    },
+    {
+      "Sid": "QueryKnowledgeBase",
+      "Effect": "Allow",
+      "Action": "bedrock:Retrieve",
+      "Resource": "arn:aws:bedrock:ap-northeast-2:917246555749:knowledge-base/CQDAFOUMG8"
+    },
+    {
+      "Sid": "InvokeHaikuViaGlobalProfile",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:GetInferenceProfile"],
+      "Resource": [
+        "arn:aws:bedrock:ap-northeast-2:917246555749:inference-profile/global.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,408 @@
+{
+ "start": "-PT24H",
+ "periodOverride": "auto",
+ "widgets": [
+  {
+   "type": "text",
+   "x": 0,
+   "y": 0,
+   "width": 24,
+   "height": 2,
+   "properties": {
+    "markdown": "## react-learn RAG 챗봇 모니터링\nCloudFront `E1W2R37PLAMJ4T` (/api/*) → API Gateway `react-learn-api` (maxu6ee1q7, 스로틀 2 rps / burst 5) → Lambda `react-learn-api` → Bedrock KB `react-learn-kb` (CQDAFOUMG8, S3 Vectors) + Claude Haiku 4.5 · 로그 `/aws/lambda/react-learn-api` · ap-northeast-2"
+   }
+  },
+  {
+   "type": "metric",
+   "x": 0,
+   "y": 2,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "API Gateway · 요청 수 / 오류",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      "AWS/ApiGateway",
+      "Count",
+      "ApiId",
+      "maxu6ee1q7",
+      "Stage",
+      "$default",
+      {
+       "label": "요청 수"
+      }
+     ],
+     [
+      ".",
+      "4xx",
+      ".",
+      ".",
+      ".",
+      ".",
+      {
+       "label": "4xx (스로틀링 429 포함)"
+      }
+     ],
+     [
+      ".",
+      "5xx",
+      ".",
+      ".",
+      ".",
+      ".",
+      {
+       "label": "5xx"
+      }
+     ]
+    ],
+    "stat": "Sum"
+   }
+  },
+  {
+   "type": "metric",
+   "x": 8,
+   "y": 2,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "API Gateway · 지연 시간 (ms)",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      "AWS/ApiGateway",
+      "Latency",
+      "ApiId",
+      "maxu6ee1q7",
+      "Stage",
+      "$default",
+      {
+       "stat": "Average",
+       "label": "전체 평균"
+      }
+     ],
+     [
+      "...",
+      {
+       "stat": "p90",
+       "label": "전체 p90"
+      }
+     ],
+     [
+      ".",
+      "IntegrationLatency",
+      ".",
+      ".",
+      ".",
+      ".",
+      {
+       "stat": "Average",
+       "label": "Lambda 구간 평균"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 16,
+   "y": 2,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "API Gateway · 선택 기간 합계",
+    "region": "ap-northeast-2",
+    "view": "singleValue",
+    "stat": "Sum",
+    "period": 86400,
+    "setPeriodToTimeRange": true,
+    "metrics": [
+     [
+      "AWS/ApiGateway",
+      "Count",
+      "ApiId",
+      "maxu6ee1q7",
+      "Stage",
+      "$default",
+      {
+       "label": "요청"
+      }
+     ],
+     [
+      ".",
+      "4xx",
+      ".",
+      ".",
+      ".",
+      ".",
+      {
+       "label": "4xx"
+      }
+     ],
+     [
+      ".",
+      "5xx",
+      ".",
+      ".",
+      ".",
+      ".",
+      {
+       "label": "5xx"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 0,
+   "y": 8,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Lambda · 호출 / 오류 / 스로틀",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      "AWS/Lambda",
+      "Invocations",
+      "FunctionName",
+      "react-learn-api",
+      {
+       "label": "호출"
+      }
+     ],
+     [
+      ".",
+      "Errors",
+      ".",
+      ".",
+      {
+       "label": "오류"
+      }
+     ],
+     [
+      ".",
+      "Throttles",
+      ".",
+      ".",
+      {
+       "label": "스로틀"
+      }
+     ]
+    ],
+    "stat": "Sum"
+   }
+  },
+  {
+   "type": "metric",
+   "x": 8,
+   "y": 8,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Lambda · 실행 시간 (ms)",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      "AWS/Lambda",
+      "Duration",
+      "FunctionName",
+      "react-learn-api",
+      {
+       "stat": "Average",
+       "label": "평균"
+      }
+     ],
+     [
+      "...",
+      {
+       "stat": "p90",
+       "label": "p90"
+      }
+     ],
+     [
+      "...",
+      {
+       "stat": "Maximum",
+       "label": "최대"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 16,
+   "y": 8,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Lambda · 동시 실행",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      "AWS/Lambda",
+      "ConcurrentExecutions",
+      "FunctionName",
+      "react-learn-api",
+      {
+       "stat": "Maximum",
+       "label": "최대 동시 실행"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 0,
+   "y": 14,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Bedrock · 모델 호출 수",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      {
+       "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"Invocations\"', 'Sum', 300)",
+       "id": "e1",
+       "label": ""
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 8,
+   "y": 14,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Bedrock · 입력/출력 토큰 (비용 추정용)",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      {
+       "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"InputTokenCount\"', 'Sum', 300)",
+       "id": "e2",
+       "label": "입력"
+      }
+     ],
+     [
+      {
+       "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"OutputTokenCount\"', 'Sum', 300)",
+       "id": "e3",
+       "label": "출력"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "metric",
+   "x": 16,
+   "y": 14,
+   "width": 8,
+   "height": 6,
+   "properties": {
+    "title": "Bedrock · 지연 / 오류",
+    "region": "ap-northeast-2",
+    "view": "timeSeries",
+    "stacked": false,
+    "period": 300,
+    "metrics": [
+     [
+      {
+       "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"InvocationLatency\"', 'Average', 300)",
+       "id": "e4",
+       "label": "지연(ms)"
+      }
+     ],
+     [
+      {
+       "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"InvocationClientErrors\" OR MetricName=\"InvocationServerErrors\" OR MetricName=\"InvocationThrottles\"', 'Sum', 300)",
+       "id": "e5",
+       "label": "오류/스로틀"
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "type": "log",
+   "x": 0,
+   "y": 20,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "Bedrock 호출 결과 (성공 / 실패 / 근거 없음)",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/lambda/react-learn-api' | filter event = 'bedrock_call' | stats count(*) as calls, sum(outcome='success' and grounded=1) as grounded, sum(outcome='success' and grounded=0) as no_answer, sum(outcome='failure') as failures, avg(latencyMs) as avg_ms by bin(1h) | sort bin(1h) desc"
+   }
+  },
+  {
+   "type": "log",
+   "x": 12,
+   "y": 20,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "Bedrock 호출 실패 목록",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/lambda/react-learn-api' | filter event = 'bedrock_call' and outcome = 'failure' | fields @timestamp, errorName, errorMessage, latencyMs | sort @timestamp desc | limit 50"
+   }
+  },
+  {
+   "type": "log",
+   "x": 0,
+   "y": 26,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "API Gateway 직접 접근 차단 (CloudFront 우회 시도)",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/lambda/react-learn-api' | filter event = 'direct_access_blocked' | fields @timestamp, sourceIp | sort @timestamp desc | limit 50"
+   }
+  },
+  {
+   "type": "log",
+   "x": 12,
+   "y": 26,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "Lambda 최근 로그 (오류·타임아웃 포함)",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/lambda/react-learn-api' | fields @timestamp, @message | filter @message like /ERROR|Task timed out|bedrock_call|REPORT/ | sort @timestamp desc | limit 100"
+   }
+  }
+ ]
+}

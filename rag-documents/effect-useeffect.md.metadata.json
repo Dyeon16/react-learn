@@ -1,0 +1,8 @@
+{
+  "metadataAttributes": {
+    "title": "Effect와 useEffect",
+    "topic": "effect-useeffect",
+    "source_url": "https://react.dev/learn/synchronizing-with-effects",
+    "source_urls": "https://react.dev/learn/synchronizing-with-effects | https://react.dev/learn/you-might-not-need-an-effect | https://react.dev/learn/removing-effect-dependencies | https://react.dev/learn/lifecycle-of-reactive-effects | https://react.dev/reference/react/useEffect"
+  }
+}
