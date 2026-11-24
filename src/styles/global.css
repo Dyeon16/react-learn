@@ -425,8 +425,9 @@ button {
 
 /* ---------- 우측 챗봇 ---------- */
 .chat-panel {
-  flex: 0 0 340px;
-  width: 340px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
   height: 100%;
   border-left: 1px solid var(--color-border);
   display: flex;
@@ -689,9 +690,52 @@ button {
 
 /* ---------- 챗봇 서랍 (넓은 화면에서는 오른쪽 고정 칼럼) ---------- */
 .chat-drawer {
-  flex: 0 0 340px;
+  /* --chat-width는 App.jsx가 드래그 결과로 지정. 창이 줄어도 본문(최소 420px)이 남도록 한 번 더 제한 */
+  flex: 0 0 min(var(--chat-width, 340px), calc(100vw - 660px));
+  min-width: 0; /* 긴 코드 블록 같은 내용 폭 때문에 지정 폭보다 넓어지지 않도록 */
+  position: relative;
   display: flex;
   height: 100%;
+}
+
+/* 챗봇 왼쪽 경계의 너비 조절 손잡이 (넓은 화면에서만 렌더링됨) */
+.chat-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  width: 8px;
+  z-index: 5;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.chat-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.chat-resize-handle:hover::after,
+.chat-resize-handle:focus-visible::after,
+body.is-resizing .chat-resize-handle::after {
+  background: var(--color-primary);
+}
+
+.chat-resize-handle:focus-visible {
+  outline: none;
+}
+
+/* 드래그 중에는 텍스트 선택을 막고 커서를 유지 */
+body.is-resizing,
+body.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
 }
 
 .chat-tab,
