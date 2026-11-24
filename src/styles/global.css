@@ -649,3 +649,37 @@ button {
   border-radius: 8px;
   padding: 6px 10px;
 }
+
+/* 챗봇 답변 안의 코드 블록 / 인라인 코드 / 글자 수 */
+.bubble .bubble-text {
+  display: block;
+}
+
+.bubble .bubble-text + .bubble-code,
+.bubble .bubble-code + .bubble-text {
+  margin-top: 8px;
+}
+
+.bubble .bubble-code {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 18px;
+  border-radius: 10px;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.bubble .inline-code {
+  font-size: 0.9em;
+}
+
+.chat-input-count {
+  align-self: flex-end;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+.chat-input-count.limit {
+  color: #b91c1c;
+}

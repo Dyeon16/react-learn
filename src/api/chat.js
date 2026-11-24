@@ -1,24 +1,32 @@
-// 실제 백엔드(API Gateway -> Lambda -> Bedrock Knowledge Base RetrieveAndGenerate) 호출.
-// CloudFront가 "/chat" 경로를 API Gateway로 라우팅하므로 배포 환경에서는 상대 경로만으로 충분하다.
-// 별도 API 도메인을 쓰고 싶으면 .env에 VITE_CHAT_API_URL을 지정하면 그 값을 우선 사용한다.
-const CHAT_ENDPOINT = import.meta.env.VITE_CHAT_API_URL || '/chat';
+// 실제 백엔드 호출: CloudFront(/api/*) → API Gateway(HTTP API) → Lambda → Bedrock Knowledge Base
+// (RetrieveAndGenerate). 프런트엔드와 API가 같은 도메인이라 상대 경로만으로 충분하고 CORS 설정도 필요 없다.
+// 로컬 개발 중에는 vite.config.js 의 proxy 가 /api 요청을 배포된 CloudFront로 전달한다.
+const CHAT_ENDPOINT = '/api/chat';
+const TIMEOUT_MS = 35000;
+
+// 백엔드(Lambda)와 같은 제한. 넘으면 서버가 400을 돌려준다.
+export const MAX_QUESTION_LENGTH = 500;
+
+export class ChatApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = 'ChatApiError';
+    this.status = status;
+  }
+}
 
 /**
- * Lambda 응답 포맷이 아직 확정되지 않았을 수 있어서, 두 가지 모양을 모두 받아들인다.
- *  1) 이미 가공된 형태:      { answer: string, sources: [{ title, url }] }
- *  2) Bedrock KB 원본 그대로: { output: { text }, citations: [{ retrievedReferences: [{ metadata }] }] }
+ * 응답 계약 (backend/api/index.mjs):
+ *   200 { answer: string, sources: [{ title, url }], grounded: boolean }
+ *   400 { message }  입력 오류 · 429 요청 제한 · 500 { message } 서버 오류
+ * 혹시 Bedrock KB 원본 모양({ output: { text }, citations })이 와도 처리할 수 있게 둔다.
  */
 function normalizeResponse(data) {
   if (!data || typeof data !== 'object') {
     return { answer: String(data ?? ''), sources: [] };
   }
 
-  const answer =
-    data.answer ??
-    data.response ??
-    data.message ??
-    data.output?.text ??
-    '';
+  const answer = data.answer ?? data.output?.text ?? '';
 
   let sources = [];
 
@@ -34,16 +42,8 @@ function normalizeResponse(data) {
       .flatMap((c) => c.retrievedReferences || [])
       .map((ref) => {
         const meta = ref.metadata || {};
-        const uri =
-          meta.url ||
-          meta.source_url ||
-          meta['x-amz-bedrock-kb-source-uri'] ||
-          ref.location?.s3Location?.uri ||
-          null;
-        return {
-          title: meta.title || meta.source || uri || '출처',
-          url: uri,
-        };
+        const uri = meta.source_url || meta.url || ref.location?.s3Location?.uri || null;
+        return { title: meta.title || uri || '출처', url: uri };
       })
       .filter((s) => s.url);
   }
@@ -59,24 +59,56 @@ function normalizeResponse(data) {
   return { answer: answer || '답변을 받지 못했어요.', sources };
 }
 
-export async function askChatbot(message, { signal } = {}) {
-  const res = await fetch(CHAT_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-    signal,
-  });
+export async function askChatbot(question, { signal } = {}) {
+  // 호출한 쪽의 취소(signal)와 타임아웃을 함께 처리
+  const controller = new AbortController();
+  const onAbort = () => controller.abort();
+  signal?.addEventListener('abort', onAbort);
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, TIMEOUT_MS);
 
-  if (!res.ok) {
-    let detail = '';
-    try {
-      detail = (await res.json())?.message || '';
-    } catch {
-      /* 응답이 JSON이 아니어도 무시 */
-    }
-    throw new Error(detail || `챗봇 서버 오류 (status ${res.status})`);
+  let res;
+  try {
+    res = await fetch(CHAT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError' && !timedOut) throw err; // 사용자가 취소한 경우
+    throw new ChatApiError(
+      timedOut
+        ? '응답이 너무 오래 걸려요. 잠시 후 다시 시도해주세요.'
+        : '서버에 연결하지 못했어요. 인터넷 연결을 확인해주세요.',
+    );
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', onAbort);
   }
 
-  const data = await res.json();
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    /* 응답이 JSON이 아니어도 아래 상태 코드로 처리 */
+  }
+
+  if (res.status === 429) {
+    throw new ChatApiError(
+      '질문이 너무 빠르게 이어지고 있어요. 몇 초만 기다렸다가 다시 물어봐 주세요.',
+      429,
+    );
+  }
+  if (!res.ok) {
+    throw new ChatApiError(
+      data?.message || '답변을 가져오지 못했어요. 잠시 후 다시 시도해주세요.',
+      res.status,
+    );
+  }
+
   return normalizeResponse(data);
 }

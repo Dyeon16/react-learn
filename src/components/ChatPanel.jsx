@@ -5,7 +5,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { askChatbot } from '../api/chat.js';
+import { askChatbot, MAX_QUESTION_LENGTH } from '../api/chat.js';
+import RichText from './RichText.jsx';
 
 let nextId = 1;
 function makeId() {
@@ -28,7 +29,7 @@ const ChatPanel = forwardRef(function ChatPanel(
 
   async function send(text) {
     const trimmed = text.trim();
-    if (!trimmed || isSending) return;
+    if (!trimmed || isSending || trimmed.length > MAX_QUESTION_LENGTH) return;
 
     const userMsg = { id: makeId(), role: 'user', text: trimmed };
     setMessages((prev) => [...prev, userMsg]);
@@ -48,6 +49,7 @@ const ChatPanel = forwardRef(function ChatPanel(
       ]);
     } catch (err) {
       if (err.name === 'AbortError') return;
+      // ChatApiError의 message는 화면용 안내 문구 (429 요청 제한·400 입력 오류·타임아웃 등)
       setMessages((prev) => [
         ...prev,
         {
@@ -55,8 +57,9 @@ const ChatPanel = forwardRef(function ChatPanel(
           role: 'bot',
           isError: true,
           text:
-            '답변을 가져오지 못했어요. 잠시 후 다시 시도해주세요.' +
-            (err?.message ? ` (${err.message})` : ''),
+            err?.name === 'ChatApiError'
+              ? err.message
+              : '답변을 가져오지 못했어요. 잠시 후 다시 시도해주세요.',
         },
       ]);
     } finally {
@@ -91,7 +94,9 @@ const ChatPanel = forwardRef(function ChatPanel(
             key={m.id}
             className={`bubble-row ${m.role}${m.isError ? ' error' : ''}`}
           >
-            <div className="bubble">{m.text}</div>
+            <div className="bubble" role={m.isError ? 'alert' : undefined}>
+              {m.role === 'bot' && !m.isError ? <RichText text={m.text} /> : m.text}
+            </div>
             {m.sources?.length > 0 && (
               <div className="bubble-sources">
                 {m.sources.map((s) => (
@@ -105,13 +110,14 @@ const ChatPanel = forwardRef(function ChatPanel(
         ))}
 
         {isSending && (
-          <div className="bubble-row bot">
+          <div className="bubble-row bot" aria-live="polite">
             <div className="bubble">
-              <span className="typing-dots">
+              <span className="typing-dots" aria-hidden="true">
                 <span />
                 <span />
                 <span />
               </span>
+              <span className="sr-only">답변 생성 중</span>
             </div>
           </div>
         )}
@@ -128,13 +134,25 @@ const ChatPanel = forwardRef(function ChatPanel(
             className="chat-input"
             placeholder="궁금한 걸 물어보세요"
             value={input}
+            maxLength={MAX_QUESTION_LENGTH}
+            aria-describedby={`${inputId}-count`}
             disabled={isSending}
             onChange={(e) => setInput(e.target.value)}
           />
-          <button type="submit" className="chat-send-btn" disabled={isSending}>
+          <button
+            type="submit"
+            className="chat-send-btn"
+            disabled={isSending || !input.trim()}
+          >
             전송
           </button>
         </form>
+        <span
+          id={`${inputId}-count`}
+          className={`chat-input-count${input.length >= MAX_QUESTION_LENGTH ? ' limit' : ''}`}
+        >
+          {input.length} / {MAX_QUESTION_LENGTH}
+        </span>
       </div>
     </aside>
   );
