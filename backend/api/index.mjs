@@ -24,7 +24,7 @@ export const FALLBACK =
 
 // 생성 모델 프롬프트: 검색 결과에만 근거해 쉬운 설명 + 짧은 코드 예시를 작성하도록 제한
 const PROMPT_TEMPLATE = `당신은 React 입문 개발자를 돕는 학습 도우미입니다.
-아래 검색 결과(React 공식 문서 react.dev를 재구성한 학습 자료)에만 근거해서 사용자의 질문에 답하세요.
+아래 검색 결과(React 공식 문서 react.dev를 재구성한 학습 자료와, 입문자용 기초 개념 자료)에만 근거해서 사용자의 질문에 답하세요.
 
 규칙:
 - 한국어로, 입문자도 이해할 수 있게 쉽고 짧게 설명하세요.
@@ -58,13 +58,15 @@ function parseBody(event) {
   return JSON.parse(raw);
 }
 
-// 인용된 문서를 title+url 기준으로 중복 제거
+// 인용된 문서를 title+url 기준으로 중복 제거.
+// 자체 작성 문서(react-basics)는 메타데이터 source_url이 "출처 없음"이므로 url을 null로 보내고,
+// 프런트엔드는 링크 없이 "공식 문서 출처 없음"으로 표시한다.
 function extractSources(citations = []) {
   const seen = new Map();
   for (const c of citations) {
     for (const ref of c.retrievedReferences ?? []) {
       const md = ref.metadata ?? {};
-      const url = md.source_url || ref.location?.s3Location?.uri || '';
+      const url = /^https?:\/\//.test(md.source_url ?? '') ? md.source_url : null;
       const title = md.title || md.topic || '참고 문서';
       const key = `${title}|${url}`;
       if (!seen.has(key)) seen.set(key, { title, url });

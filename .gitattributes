@@ -1,0 +1,2 @@
+# RAG 원천 문서는 LF로 고정 (Windows 체크아웃 시 CRLF로 바뀌어 S3 동기화 때 불필요하게 재업로드되는 것을 방지)
+rag-documents/** text eol=lf

@@ -151,11 +151,17 @@ const ChatPanel = forwardRef(function ChatPanel(
             </div>
             {m.sources?.length > 0 && (
               <div className="bubble-sources">
-                {m.sources.map((s) => (
-                  <a key={s.url} href={s.url} target="_blank" rel="noreferrer">
-                    출처: {s.title}
-                  </a>
-                ))}
+                {m.sources.map((s) =>
+                  s.url ? (
+                    <a key={`${s.title}|${s.url}`} href={s.url} target="_blank" rel="noreferrer">
+                      출처: {s.title}
+                    </a>
+                  ) : (
+                    <span key={`${s.title}|none`} className="source-none">
+                      출처: {s.title} (공식 문서 출처 없음)
+                    </span>
+                  ),
+                )}
               </div>
             )}
           </div>

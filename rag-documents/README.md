@@ -29,3 +29,13 @@ React 문서 라이선스: https://github.com/reactjs/react.dev/blob/main/LICENS
 | AWS EC2 인스턴스 생성 방법은? | 범위 밖: 답변 불가 안내 |
 
 검색 결과와 인용 메타데이터, 코드의 정확성을 확인합니다. 코드 예시는 독립 실습용이며 일부 함수 조각은 해당 절의 설명과 함께 사용해야 합니다. AWS 실제 동기화 및 브라우저 실행은 아직 검증하지 않았습니다.
+
+## 추가 문서: React 기초 개념 (자체 작성, 2026-11-24)
+- `react-basics.md` + `react-basics.md.metadata.json`
+- 페이지별 추천 질문 중 기존 5개 문서로 답하기 어려웠던 기초 질문을 보강한다:
+  React란/왜 쓰나, state 변경 시 다시 렌더링되는 과정, JSX, Hook 규칙, useRef와 useState의 차이,
+  "상태 업데이트는 비동기인가?" 오해 정리, 라이브러리 vs 프레임워크, 입문 FAQ.
+- 공식 문서를 옮긴 것이 아니므로 메타데이터의 `source_url`/`source_urls`는 `"출처 없음"`이다.
+  Lambda는 http(s)가 아닌 source_url을 `url: null`로 보내고, 화면에는 링크 없이
+  "출처: React 기초 개념 (공식 문서 출처 없음)"으로 표시된다.
+- 특정 프레임워크 이름은 넣지 않았다 (범위 밖 질문 거절 동작 유지).

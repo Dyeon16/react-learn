@@ -899,3 +899,9 @@ button {
     transition: none;
   }
 }
+
+/* 공식 문서 출처가 없는 자체 작성 자료 (링크 없음) */
+.bubble-sources .source-none {
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}

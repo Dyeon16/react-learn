@@ -17,7 +17,8 @@ export class ChatApiError extends Error {
 
 /**
  * 응답 계약 (backend/api/index.mjs):
- *   200 { answer: string, sources: [{ title, url }], grounded: boolean }
+ *   200 { answer: string, sources: [{ title, url | null }], grounded: boolean }
+ *       (url이 null이면 공식 문서 출처가 없는 자체 작성 자료)
  *   400 { message }  입력 오류 · 429 요청 제한 · 500 { message } 서버 오류
  * 혹시 Bedrock KB 원본 모양({ output: { text }, citations })이 와도 처리할 수 있게 둔다.
  */
@@ -28,31 +29,31 @@ function normalizeResponse(data) {
 
   const answer = data.answer ?? data.output?.text ?? '';
 
+  // url은 http(s) 주소일 때만 링크로 쓴다. 자체 작성 문서처럼 공식 출처가 없는 자료는
+  // url: null 로 두고 화면에 "공식 문서 출처 없음"으로 표시한다.
+  const toUrl = (v) => (typeof v === 'string' && /^https?:\/\//.test(v) ? v : null);
   let sources = [];
 
   if (Array.isArray(data.sources)) {
-    sources = data.sources
-      .map((s) => ({
-        title: s.title || s.name || s.url || '출처',
-        url: s.url || s.uri || null,
-      }))
-      .filter((s) => s.url);
+    sources = data.sources.map((s) => ({
+      title: s.title || s.name || '참고 자료',
+      url: toUrl(s.url || s.uri),
+    }));
   } else if (Array.isArray(data.citations)) {
     sources = data.citations
       .flatMap((c) => c.retrievedReferences || [])
       .map((ref) => {
         const meta = ref.metadata || {};
-        const uri = meta.source_url || meta.url || ref.location?.s3Location?.uri || null;
-        return { title: meta.title || uri || '출처', url: uri };
-      })
-      .filter((s) => s.url);
+        return { title: meta.title || '참고 자료', url: toUrl(meta.source_url || meta.url) };
+      });
   }
 
-  // 같은 url이 여러 번 인용되면 하나로 합친다.
+  // 같은 자료가 여러 번 인용되면 하나로 합친다.
   const seen = new Set();
   sources = sources.filter((s) => {
-    if (seen.has(s.url)) return false;
-    seen.add(s.url);
+    const key = `${s.title}|${s.url}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 
