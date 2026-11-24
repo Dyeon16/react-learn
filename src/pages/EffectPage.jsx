@@ -1,6 +1,6 @@
 import { CodeBlock, Kw, Fn, Num } from '../components/CodeTokens.jsx';
 
-export default function EffectPage() {
+export default function EffectPage({ onAsk }) {
   return (
     <>
       <div className="content-header">
@@ -51,8 +51,12 @@ export default function EffectPage() {
       <div className="suggested-questions">
         <h2>이런 질문도 해보세요</h2>
         <div className="chip-row">
-          <span className="chip">useEffect는 아무 때나 써도 되나요?</span>
-          <span className="chip">의존성 배열을 비워두면 뭐가 달라져요?</span>
+          <button type="button" className="chip" onClick={() => onAsk('useEffect는 아무 때나 써도 되나요?')}>
+            useEffect는 아무 때나 써도 되나요?
+          </button>
+          <button type="button" className="chip" onClick={() => onAsk('의존성 배열을 비워두면 뭐가 달라져요?')}>
+            의존성 배열을 비워두면 뭐가 달라져요?
+          </button>
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
 import { CodeBlock, Kw, Fn, Tag, Comp, Attr, Str } from '../components/CodeTokens.jsx';
 
-export default function ComponentsPage() {
+export default function ComponentsPage({ onAsk }) {
   return (
     <>
       <div className="content-header">
@@ -46,8 +46,12 @@ export default function ComponentsPage() {
       <div className="suggested-questions">
         <h2>이런 질문도 해보세요</h2>
         <div className="chip-row">
-          <span className="chip">Props와 State의 차이는?</span>
-          <span className="chip">컴포넌트 이름은 꼭 대문자여야 해요?</span>
+          <button type="button" className="chip" onClick={() => onAsk('Props와 State의 차이는?')}>
+            Props와 State의 차이는?
+          </button>
+          <button type="button" className="chip" onClick={() => onAsk('컴포넌트 이름은 꼭 대문자여야 해요?')}>
+            컴포넌트 이름은 꼭 대문자여야 해요?
+          </button>
         </div>
       </div>
     </>

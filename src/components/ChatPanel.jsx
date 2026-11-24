@@ -1,20 +1,30 @@
-import { useId, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { askChatbot } from '../api/chat.js';
-import { STARTER_QUESTIONS } from '../data/starterQuestions.js';
 
 let nextId = 1;
 function makeId() {
   return nextId++;
 }
 
-export default function ChatPanel({ pageKey, title = '무엇이든 물어보세요' }) {
+const ChatPanel = forwardRef(function ChatPanel(
+  { title = '무엇이든 물어보세요' },
+  ref,
+) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const inputId = useId();
   const abortRef = useRef(null);
 
-  const starters = STARTER_QUESTIONS[pageKey] || [];
+  // 페이지 콘텐츠의 "이런 질문도 해보세요" 칩이 이 ask()를 호출해서
+  // 오른쪽 챗봇에 실제로 질문을 전송한다 (App.jsx가 ref로 연결해줌).
+  useImperativeHandle(ref, () => ({ ask: send }));
 
   async function send(text) {
     const trimmed = text.trim();
@@ -108,22 +118,6 @@ export default function ChatPanel({ pageKey, title = '무엇이든 물어보세�
       </div>
 
       <div className="chat-footer">
-        {starters.length > 0 && (
-          <div className="chat-starters">
-            {starters.map((q) => (
-              <button
-                key={q}
-                type="button"
-                className="chat-starter-btn"
-                disabled={isSending}
-                onClick={() => send(q)}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
-
         <form className="chat-input-row" onSubmit={handleSubmit}>
           <label htmlFor={inputId} className="sr-only">
             메시지 입력
@@ -144,4 +138,6 @@ export default function ChatPanel({ pageKey, title = '무엇이든 물어보세�
       </div>
     </aside>
   );
-}
+});
+
+export default ChatPanel;

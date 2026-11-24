@@ -1,6 +1,6 @@
 import { CodeBlock, Kw, Fn, Tag, Attr, Str } from '../components/CodeTokens.jsx';
 
-export default function ConditionalPage() {
+export default function ConditionalPage({ onAsk }) {
   return (
     <>
       <div className="content-header">
@@ -51,8 +51,12 @@ export default function ConditionalPage() {
       <div className="suggested-questions">
         <h2>이런 질문도 해보세요</h2>
         <div className="chip-row">
-          <span className="chip">key는 왜 꼭 넣어야 해요?</span>
-          <span className="chip">if문 대신 삼항연산자 꼭 써야 하나요?</span>
+          <button type="button" className="chip" onClick={() => onAsk('key는 왜 꼭 넣어야 해요?')}>
+            key는 왜 꼭 넣어야 해요?
+          </button>
+          <button type="button" className="chip" onClick={() => onAsk('if문 대신 삼항연산자 꼭 써야 하나요?')}>
+            if문 대신 삼항연산자 꼭 써야 하나요?
+          </button>
         </div>
       </div>
     </>

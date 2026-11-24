@@ -1,6 +1,6 @@
 import { CodeBlock, Kw, Fn, Tag, Attr, Str } from '../components/CodeTokens.jsx';
 
-export default function EventHandlingPage() {
+export default function EventHandlingPage({ onAsk }) {
   return (
     <>
       <div className="content-header">
@@ -46,8 +46,16 @@ export default function EventHandlingPage() {
       <div className="suggested-questions">
         <h2>이런 질문도 해보세요</h2>
         <div className="chip-row">
-          <span className="chip">onClick={'{fn()}'}과 onClick={'{fn}'} 차이는?</span>
-          <span className="chip">이벤트 전파는 어떻게 막아요?</span>
+          <button
+            type="button"
+            className="chip"
+            onClick={() => onAsk('onClick={fn()}과 onClick={fn} 차이는?')}
+          >
+            onClick={'{fn()}'}과 onClick={'{fn}'} 차이는?
+          </button>
+          <button type="button" className="chip" onClick={() => onAsk('이벤트 전파는 어떻게 막아요?')}>
+            이벤트 전파는 어떻게 막아요?
+          </button>
         </div>
       </div>
     </>

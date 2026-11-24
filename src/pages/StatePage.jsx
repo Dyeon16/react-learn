@@ -1,6 +1,6 @@
 import { CodeBlock, Kw, Fn, Tag, Attr, Num } from '../components/CodeTokens.jsx';
 
-export default function StatePage() {
+export default function StatePage({ onAsk }) {
   return (
     <>
       <div className="content-header">
@@ -45,8 +45,12 @@ export default function StatePage() {
       <div className="suggested-questions">
         <h2>이런 질문도 해보세요</h2>
         <div className="chip-row">
-          <span className="chip">useState와 useRef 차이는?</span>
-          <span className="chip">상태 업데이트가 비동기인 이유는?</span>
+          <button type="button" className="chip" onClick={() => onAsk('useState와 useRef 차이는?')}>
+            useState와 useRef 차이는?
+          </button>
+          <button type="button" className="chip" onClick={() => onAsk('상태 업데이트가 비동기인 이유는?')}>
+            상태 업데이트가 비동기인 이유는?
+          </button>
         </div>
       </div>
     </>
