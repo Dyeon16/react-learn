@@ -9,7 +9,7 @@
    "width": 24,
    "height": 2,
    "properties": {
-    "markdown": "## react-learn RAG 챗봇 모니터링\nCloudFront `E1W2R37PLAMJ4T` (/api/*) → API Gateway `react-learn-api` (maxu6ee1q7, 스로틀 2 rps / burst 5) → Lambda `react-learn-api` → Bedrock KB `react-learn-kb` (CQDAFOUMG8, S3 Vectors) + Claude Haiku 4.5 · 로그 `/aws/lambda/react-learn-api` · ap-northeast-2"
+    "markdown": "## react-learn RAG 챗봇 모니터링\nCloudFront `E1W2R37PLAMJ4T` (/api/*) → API Gateway `react-learn-api` (maxu6ee1q7, 스로틀 2 rps / burst 5) → Lambda `react-learn-api` → Bedrock KB `react-learn-kb` (CQDAFOUMG8, S3 Vectors) + Claude Haiku 4.5 · 로그 `/aws/lambda/react-learn-api`, 액세스 로그 `/aws/apigateway/react-learn-api` (보존 7일) · ap-northeast-2"
    }
   },
   {
@@ -402,6 +402,45 @@
     "region": "ap-northeast-2",
     "view": "table",
     "query": "SOURCE '/aws/lambda/react-learn-api' | fields @timestamp, @message | filter @message like /ERROR|Task timed out|bedrock_call|REPORT/ | sort @timestamp desc | limit 100"
+   }
+  },
+  {
+   "type": "log",
+   "x": 0,
+   "y": 32,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "API 액세스 로그 · 상태 코드별 요청 수 (429 = 요청 제한)",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/apigateway/react-learn-api' | stats count(*) as requests by status, bin(1h) | sort bin(1h) desc, status asc"
+   }
+  },
+  {
+   "type": "log",
+   "x": 12,
+   "y": 32,
+   "width": 12,
+   "height": 6,
+   "properties": {
+    "title": "API 액세스 로그 · 최근 오류 요청 (4xx/5xx)",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/apigateway/react-learn-api' | filter status >= 400 | fields @timestamp, status, method, path, ip, latencyMs, integrationError, errorMessage | sort @timestamp desc | limit 50"
+   }
+  },
+  {
+   "type": "log",
+   "x": 0,
+   "y": 38,
+   "width": 24,
+   "height": 6,
+   "properties": {
+    "title": "API 액세스 로그 · 최근 요청",
+    "region": "ap-northeast-2",
+    "view": "table",
+    "query": "SOURCE '/aws/apigateway/react-learn-api' | fields @timestamp, status, method, path, ip, latencyMs, integrationLatencyMs, userAgent | sort @timestamp desc | limit 100"
    }
   }
  ]

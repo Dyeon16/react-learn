@@ -13,7 +13,8 @@
 | IAM 역할 | `react-learn-kb-role`, `react-learn-api-role` (정책: `iam/`) |
 | Lambda | `react-learn-api` (Node.js 22, arm64) — 코드: `api/index.mjs` |
 | HTTP API | `react-learn-api` = `maxu6ee1q7`, `POST /api/chat`, `$default` 스로틀 2 rps / burst 5 |
-| CloudWatch | 대시보드 `react-learn-dashboard` (`monitoring/dashboard.json`), 로그 `/aws/lambda/react-learn-api` |
+| CloudWatch | 대시보드 `react-learn-dashboard` (`monitoring/dashboard.json`) |
+| 로그 (보존 7일) | Lambda `/aws/lambda/react-learn-api` (Bedrock 호출 성공/실패 JSON 로그), API 액세스 로그 `/aws/apigateway/react-learn-api` |
 
 ## API
 
