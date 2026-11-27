@@ -833,23 +833,19 @@ body.is-resizing * {
     flex-direction: column;
   }
 
+  /* 숨은 가로 스크롤 대신 줄바꿈: PC 좁은 창(스크롤바·가로 휠 없음)에서도 6개 메뉴가 모두 보이도록 */
   .sidebar {
     flex: 0 0 auto;
     width: 100%;
     height: auto;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     gap: 4px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-right: none;
     border-bottom: 1px solid var(--color-border);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-  }
-
-  .sidebar::-webkit-scrollbar {
-    display: none;
+    overflow: visible;
   }
 
   .sidebar-brand {
@@ -867,7 +863,7 @@ body.is-resizing * {
     flex: 0 0 auto;
     width: auto;
     white-space: nowrap;
-    padding: 8px 12px;
+    padding: 6px 10px;
     font-size: 13px;
     border-left: none;
   }
